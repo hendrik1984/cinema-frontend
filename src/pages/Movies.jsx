@@ -137,6 +137,14 @@ function Movies() {
 
                 <button onClick={handleSearch}>Search</button>
                 <button onClick={handleClear}>Clear</button>
+                <br />
+                <button onClick={() => setPage(page - 1)} disabled={page === 1}>
+                    Prev
+                </button>
+
+                <button onClick={() => setPage(page + 1)} disabled={page >= meta.total_pages}>
+                    Next
+                </button>
             </div>
 
             {movies.map((m) => (

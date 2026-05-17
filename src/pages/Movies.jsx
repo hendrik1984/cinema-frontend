@@ -2,15 +2,29 @@ import { useEffect, useState } from "react";
 import { apiFetch } from "../api/client";
 
 function Movies() {
+    function getInitialState() {
+        const params = new URLSearchParams(window.location.search);
+
+        return {
+            page: parseInt(params.get("page")) || 1,
+            search: params.get("search") || "",
+            minDuration: params.get("minDuration") || "",
+            maxDuration: params.get("maxDuration") || "",
+            isActive: params.get("isActive") || "",
+        };
+    }
+
+    const initial = getInitialState();
+
     const [movies, setMovies] = useState([]);
     const [meta, setMeta] = useState({});
-    const [page, setPage] = useState(1);
     
     //filters
-    const [search, setSearch] = useState("");
-    const [minDuration, setMinDuration] = useState("");
-    const [maxDuration, setMaxDuration] = useState("");
-    const [isActive, setIsActive] = useState("");
+    const [page, setPage] = useState(initial.page);
+    const [search, setSearch] = useState(initial.search);
+    const [minDuration, setMinDuration] = useState(initial.minDuration);
+    const [maxDuration, setMaxDuration] = useState(initial.maxDuration);
+    const [isActive, setIsActive] = useState(initial.isActive);
 
     function buildQuery() {
         const params = new URLSearchParams();
@@ -23,23 +37,25 @@ function Movies() {
         if (maxDuration) params.append("maxDuration", maxDuration);
         if (isActive) params.append("isActive", isActive);
         
-        console.log(params);
         return `/movies?${params.toString()}`;
     }
 
-    function handleSearch() {
-        setPage(1);
-        const url = buildQuery();
-        console.log("im handle search");
-        apiFetch(url)
-            .then((res) => {
-                console.log(res.data);
-                setMovies(res.data);
-                setMeta(res.meta);
-            })
-            .catch(console.error);
-    }
+    // update url when state change
+    useEffect(() => {
+        const params = new URLSearchParams();
 
+        params.set("page", page)
+        
+        if (search) params.set("search", search);
+        if (minDuration) params.set("min_duration", minDuration);
+        if (maxDuration) params.set("max_duration", maxDuration);
+        if (isActive !== "") params.set("is_active", isActive);
+
+        const newUrl = `/movies?${params.toString()}`;
+        window.history.pushState({}, "", newUrl);
+    }, [page, search, minDuration, maxDuration, isActive]);
+
+    // fetch data when state changes
     useEffect(() => {
         const url = buildQuery();
 
@@ -51,7 +67,11 @@ function Movies() {
         .catch((err) => {
             console.error(err);
         });
-    }, [page]);
+    }, [page, search, minDuration, maxDuration, isActive]);
+
+    function handleSearch() {
+        setPage(1);
+    }
 
     return (
         <div>

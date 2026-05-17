@@ -16,11 +16,20 @@ function Movies() {
 
     const initial = getInitialState();
 
+    // Data
     const [movies, setMovies] = useState([]);
     const [meta, setMeta] = useState({});
-    
-    //filters
+
+    // Pagination
     const [page, setPage] = useState(initial.page);
+
+    // input (typing)
+    const [searchInput, setSearchInput] = useState(initial.search);
+    const [minDurationInput, setMinDurationInput] = useState(initial.minDuration);
+    const [maxDurationInput, setMaxDurationInput] = useState(initial.maxDuration);
+    const [isActiveInput, setIsActiveInput] = useState(initial.isActive);
+
+    // applied (used for API)
     const [search, setSearch] = useState(initial.search);
     const [minDuration, setMinDuration] = useState(initial.minDuration);
     const [maxDuration, setMaxDuration] = useState(initial.maxDuration);
@@ -32,10 +41,10 @@ function Movies() {
         params.append("page", page);
         params.append("limit", 10)
 
-        if (search) params.append("search", search);
-        if (minDuration) params.append("minDuration", minDuration);
-        if (maxDuration) params.append("maxDuration", maxDuration);
-        if (isActive) params.append("isActive", isActive);
+        if (search) params.set("search", search);
+        if (minDuration) params.set("minDuration", minDuration);
+        if (maxDuration) params.set("maxDuration", maxDuration);
+        if (isActive) params.set("isActive", isActive);
         
         return `/movies?${params.toString()}`;
     }
@@ -71,6 +80,25 @@ function Movies() {
 
     function handleSearch() {
         setPage(1);
+
+        setSearch(searchInput);
+        setMinDuration(minDurationInput);
+        setMaxDuration(maxDurationInput);
+        setIsActive(isActiveInput);
+    }
+
+    function handleClear() {
+        setPage(1);
+
+        setSearch("");
+        setMinDuration("");
+        setMaxDuration("");
+        setIsActive("");
+
+        setSearchInput("");
+        setMinDurationInput("");
+        setMaxDurationInput("");
+        setIsActiveInput("");
     }
 
     return (
@@ -80,27 +108,27 @@ function Movies() {
             <div style={{ marginBottom: "20px" }}>
                 <input
                     placeholder="Search title"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
+                    value={searchInput}
+                    onChange={(e) => setSearchInput(e.target.value)}
                 /><br />
 
                 <input
                     type="number"
                     placeholder="Min duration"
-                    value={minDuration}
-                    onChange={(e) => setMinDuration(e.target.value)}
+                    value={minDurationInput}
+                    onChange={(e) => setMinDurationInput(e.target.value)}
                 /><br />
 
                 <input
                     type="number"
                     placeholder="Max duration"
-                    value={maxDuration}
-                    onChange={(e) => setMaxDuration(e.target.value)}
+                    value={maxDurationInput}
+                    onChange={(e) => setMaxDurationInput(e.target.value)}
                 /><br />
 
                 <select
-                    value={isActive}
-                    onChange={(e) => setIsActive(e.target.value)}
+                    value={isActiveInput}
+                    onChange={(e) => setIsActiveInput(e.target.value)}
                 >
                     <option value="">All</option>
                     <option value="true">Active</option>
@@ -108,6 +136,7 @@ function Movies() {
                 </select><br />
 
                 <button onClick={handleSearch}>Search</button>
+                <button onClick={handleClear}>Clear</button>
             </div>
 
             {movies.map((m) => (
